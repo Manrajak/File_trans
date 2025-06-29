@@ -495,40 +495,82 @@ const getDownloadCount = async (req, res) => {
 }
 
 
-const resolveShareLink = async (req, res) => {
-  const { code } = req.params;
-const shortUrl = `${process.env.BASE_URL}/f/${code}`;
-const file = await File.findOne({ shortUrl });
+// const resolveShareLink = async (req, res) => {
+//   const { code } = req.params;
+// const shortUrl = `${process.env.BASE_URL}/f/${code}`;
+// const file = await File.findOne({ shortUrl });
 
+//   try {
+//     const file = await File.findOne({ shortUrl });
+
+//     if (!file) {
+//       return res.status(404).json({ error: "Invalid or expired link" });
+//     }
+
+//     // Check expiry
+//     if (file.expiresAt && new Date() > file.expiresAt) {
+//       file.status = "expired";
+//       await file.save();
+//       return res.status(410).json({ error: "This file has expired." });
+//     }
+
+//     return res.status(200).json({
+//       fileId: file._id,
+//       name: file.name,
+//       size: file.size,
+//       type: file.type || "file", // fallback if missing
+//       previewUrl: file.path,
+//       isPasswordProtected: file.isPasswordProtected || false,
+//       expiresAt: file.expiresAt || null,
+//       status: file.status || "active",
+//     });
+//   } catch (error) {
+//     console.error("Error resolving share link:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// // };
+
+
+const resolveShareLink = async (req, res) => {
   try {
+    const { code } = req.params;
+    const shortUrl = `${process.env.BASE_URL}/f/${code}`;
     const file = await File.findOne({ shortUrl });
 
     if (!file) {
-      return res.status(404).json({ error: "Invalid or expired link" });
+      return res.status(404).send("Not Found");
     }
 
     // Check expiry
     if (file.expiresAt && new Date() > file.expiresAt) {
       file.status = "expired";
       await file.save();
-      return res.status(410).json({ error: "This file has expired." });
+      return res.status(410).send("This file has expired.");
     }
 
-    return res.status(200).json({
-      fileId: file._id,
-      name: file.name,
-      size: file.size,
-      type: file.type || "file", // fallback if missing
-      previewUrl: file.path,
-      isPasswordProtected: file.isPasswordProtected || false,
-      expiresAt: file.expiresAt || null,
-      status: file.status || "active",
+    // Generate a signed S3 download URL
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
     });
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `file-share-app/${file.name}`,
+      Expires: 60, // 1 minute
+    };
+
+    const downloadUrl = s3.getSignedUrl('getObject', params);
+
+    // Redirect user to the download URL
+    return res.redirect(downloadUrl);
   } catch (error) {
     console.error("Error resolving share link:", error);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).send("Server error");
   }
 };
+
 
 const verifyFilePassword = async (req, res) => {
   const { fileId, password } = req.body;
@@ -564,7 +606,9 @@ const getUserFiles = async (req, res) => {
     console.error("List files error:", error);
     return res.status(500).json({ error: "Error fetching user files" });
   }
-}
+};
+
+
 
 
 

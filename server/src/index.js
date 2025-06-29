@@ -19,13 +19,14 @@ const startServer = async () => {
 
     // Register routes
     app.use("/api/files", fileRoutes);
-    app.use("/api/users", userRoutes); // 👈 Now you can use /api/users endpoints
+    app.use("/", fileRoutes);
+    app.use("/api/users", userRoutes); 
 
     app.use(express.static(path.join(__dirname, "/client")));
 
-    app.get("/f/:shortCode", (req, res) => {
-      res.sendFile(path.join(__dirname, "/client/index.html"));
-    });
+    // app.get("/f/:shortCode", (req, res) => {
+    //   res.sendFile(path.join(__dirname, "/client/index.html"));
+    // });
 
     app.listen(PORT, () => {
       console.log(`✅ Server is running at http://localhost:${PORT}`);

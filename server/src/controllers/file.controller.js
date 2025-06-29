@@ -534,14 +534,53 @@ const getDownloadCount = async (req, res) => {
 // // };
 
 
+// const resolveShareLink = async (req, res) => {
+//   try {
+//     const { code } = req.params;
+//     // const shortUrl = `${process.env.BASE_URL}/f/${code}`;
+//     // const file = await File.findOne({ shortUrl });
+//     const file = await File.findOne({ shortCode: code });
+
+
+
+//     if (!file) {
+//       return res.status(404).send("Not Found");
+//     }
+
+//     // Check expiry
+//     if (file.expiresAt && new Date() > file.expiresAt) {
+//       file.status = "expired";
+//       await file.save();
+//       return res.status(410).send("This file has expired.");
+//     }
+
+//     // Generate a signed S3 download URL
+//     const s3 = new AWS.S3({
+//       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//       region: process.env.AWS_REGION,
+//     });
+
+//     const params = {
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: `file-share-app/${file.name}`,
+//       Expires: 60, // 1 minute
+//     };
+
+//     const downloadUrl = s3.getSignedUrl('getObject', params);
+
+//     // Redirect user to the download URL
+//     return res.redirect(downloadUrl);
+//   } catch (error) {
+//     console.error("Error resolving share link:", error);
+//     res.status(500).send("Server error");
+//   }
+// };
+
 const resolveShareLink = async (req, res) => {
   try {
     const { code } = req.params;
-    // const shortUrl = `${process.env.BASE_URL}/f/${code}`;
-    // const file = await File.findOne({ shortUrl });
     const file = await File.findOne({ shortCode: code });
-
-
 
     if (!file) {
       return res.status(404).send("Not Found");
@@ -565,6 +604,7 @@ const resolveShareLink = async (req, res) => {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: `file-share-app/${file.name}`,
       Expires: 60, // 1 minute
+      ResponseContentDisposition: `attachment; filename="${file.name}"`, // Force download
     };
 
     const downloadUrl = s3.getSignedUrl('getObject', params);

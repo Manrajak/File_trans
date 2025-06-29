@@ -28,6 +28,10 @@ const startServer = async () => {
     //   res.sendFile(path.join(__dirname, "/client/index.html"));
     // });
 
+    app.get("/", (req, res) => {
+  res.send("SharePod API is running!");
+});
+
     app.listen(PORT, () => {
       console.log(`✅ Server is running at http://localhost:${PORT}`);
     });

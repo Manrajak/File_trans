@@ -1,4 +1,4 @@
-// src/features/auth/authThunks.js
+
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import axiosInstance from '../../../config/axiosInstance';

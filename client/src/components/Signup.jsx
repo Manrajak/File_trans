@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { registerUser } from '../redux/slice/auth/authThunk';
+import { logoutUser } from '../redux/slice/auth/authSlice';
+
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -37,7 +39,7 @@ const Signup = () => {
         toast.error(result.payload);
       } else {
         toast.success('Registration successful');
-        dispatch(logout());
+        dispatch(logoutUser()); 
         navigate('/login');
       }
     } catch (error) {

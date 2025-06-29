@@ -63,6 +63,9 @@ const uploadFiles = async (req, res) => {
           ? new Date(Date.now() + expiresAt * 3600000)
           : new Date(Date.now() + 10 * 24 * 3600000),
         status: 'active',
+        //
+        shortCode:shortCode,
+        
         shortUrl: `${process.env.BASE_URL}/f/${shortCode}`,
         createdBy: userId,
       };
@@ -535,7 +538,10 @@ const resolveShareLink = async (req, res) => {
   try {
     const { code } = req.params;
     const shortUrl = `${process.env.BASE_URL}/f/${code}`;
-    const file = await File.findOne({ shortUrl });
+    // const file = await File.findOne({ shortUrl });
+    const file = await File.findOne({ shortCode: code });e
+
+
 
     if (!file) {
       return res.status(404).send("Not Found");

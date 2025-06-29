@@ -37,6 +37,7 @@ const Signup = () => {
         toast.error(result.payload);
       } else {
         toast.success('Registration successful');
+        dispatch(logout());
         navigate('/login');
       }
     } catch (error) {

@@ -24,7 +24,9 @@ router.get('/generateQR/:fileId', generateQR);
 router.get('/getDownloadCount/:fileId', getDownloadCount);
 
 
-router.get('/resolveShareLink/:code', resolveShareLink);
+// router.get('/resolveShareLink/:code', resolveShareLink);
+router.get('/f/:code', resolveShareLink);
+
 router.post('/verifyFilePassword', verifyFilePassword);
 
 router.get('/getUserFiles/:userId', getUserFiles);
